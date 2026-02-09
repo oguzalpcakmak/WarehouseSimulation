@@ -134,3 +134,10 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# dotenv environment variable files
+.env
+.env.*.local
+.DS_Store
+Thumbs.db
+package-lock.json
