@@ -97,15 +97,35 @@ export const translations = {
     infoStepDist: 'Adım Mesafe',
     infoTotalDist: 'Toplam Mesafe',
     infoProduct: 'Ürün',
+    infoElevator: 'Asansör',
+    infoStair: 'Merdiven',
+    returnToElevator: 'Asansöre Dönüş',
+    startAtElevator: 'Başlangıç (Asansör)',
+    returnToStair: 'Merdivene Dönüş',
+    startAtStair: 'Başlangıç (Merdiven)',
     
     // Legend
     legendShelf: 'Raf',
     legendAisle: 'Koridor (AISLE)',
     legendCrossAisle: 'Cross Aisle',
+    legendElevator: 'Asansör',
+    legendStair: 'Merdiven',
     legendShelfLeft: 'Sol Raf (L)',
     legendShelfRight: 'Sağ Raf (R)',
     legendCurrent: 'Mevcut Konum',
     legendTrail: 'Geçmiş Adımlar',
+    
+    // Stock Processing
+    stockRowsRead: 'stok satırı okundu',
+    stockProcessed: 'Stok verisi işlendi ve güncellendi',
+    stockExcelDownloaded: 'Güncellenmiş stok dosyası indirildi',
+    downloadStockExcel: 'Stok Excel İndir',
+    stockStatsTitle: 'Stok İstatistikleri',
+    originalStock: 'Orijinal Stok',
+    updatedItems: 'Güncellenen',
+    newStockItems: 'Yeni Eklenen',
+    totalAddedBack: 'Toplam Eklenen',
+    units: 'adet',
   },
   
   en: {
@@ -203,15 +223,35 @@ export const translations = {
     infoStepDist: 'Step Distance',
     infoTotalDist: 'Total Distance',
     infoProduct: 'Product',
+    infoElevator: 'Elevator',
+    infoStair: 'Stair',
+    returnToElevator: 'Return to Elevator',
+    startAtElevator: 'Start (Elevator)',
+    returnToStair: 'Return to Stair',
+    startAtStair: 'Start (Stair)',
     
     // Legend
     legendShelf: 'Shelf',
     legendAisle: 'Aisle',
     legendCrossAisle: 'Cross Aisle',
+    legendElevator: 'Elevator',
+    legendStair: 'Stair',
     legendShelfLeft: 'Left Shelf (L)',
     legendShelfRight: 'Right Shelf (R)',
     legendCurrent: 'Current Position',
     legendTrail: 'Past Steps',
+    
+    // Stock Processing
+    stockRowsRead: 'stock rows read',
+    stockProcessed: 'Stock data processed and updated',
+    stockExcelDownloaded: 'Updated stock file downloaded',
+    downloadStockExcel: 'Download Stock Excel',
+    stockStatsTitle: 'Stock Statistics',
+    originalStock: 'Original Stock',
+    updatedItems: 'Updated',
+    newStockItems: 'Newly Added',
+    totalAddedBack: 'Total Added',
+    units: 'units',
   }
 };
 

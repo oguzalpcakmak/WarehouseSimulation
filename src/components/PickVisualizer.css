@@ -143,6 +143,42 @@
   margin-bottom: 1.5rem;
 }
 
+.current-pick-info.return-info {
+  background: rgba(255, 100, 100, 0.1);
+  border: 1px solid rgba(255, 100, 100, 0.3);
+}
+
+.current-pick-info.return-info .info-value {
+  color: #ff6b6b;
+}
+
+.current-pick-info.start-info {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.current-pick-info.start-info .info-value {
+  color: #ffc107;
+}
+
+.current-pick-info.stair-info {
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.current-pick-info.stair-info .info-value {
+  color: #9c27b0;
+}
+
+.current-pick-info.stair-return-info {
+  background: rgba(156, 39, 176, 0.1);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.current-pick-info.stair-return-info .info-value {
+  color: #9c27b0;
+}
+
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -168,10 +204,11 @@
 }
 
 .layout-container {
-  overflow: hidden;
+  overflow: visible;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 12px;
   padding: 1rem;
+  padding-top: 2rem;  /* Asansörler için ekstra boşluk */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -179,6 +216,7 @@
 
 .layout-wrapper {
   display: inline-block;
+  overflow: visible;
 }
 
 .layout {
@@ -186,6 +224,7 @@
   background: #1a1a2e;
   border: 2px solid rgba(255, 255, 255, 0.1);
   will-change: transform;
+  overflow: visible;
 }
 
 /* Cross Aisle */
@@ -203,6 +242,62 @@
   color: rgba(255, 200, 100, 0.8);
   writing-mode: horizontal-tb;
   white-space: nowrap;
+}
+
+/* Asansörler */
+.elevator {
+  position: absolute;
+  background: rgba(128, 128, 128, 0.3);
+  border: 2px solid rgba(128, 128, 128, 0.6);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.elevator-label {
+  font-size: 0.5rem;
+  color: rgba(200, 200, 200, 0.9);
+  font-weight: bold;
+}
+
+.elevator-active {
+  background: rgba(255, 193, 7, 0.4);
+  border-color: rgba(255, 193, 7, 0.9);
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+.elevator-active .elevator-label {
+  color: #ffc107;
+}
+
+/* Merdivenler */
+.stair {
+  position: absolute;
+  background: rgba(156, 39, 176, 0.3);
+  border: 2px solid rgba(156, 39, 176, 0.6);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.stair-label {
+  font-size: 0.5rem;
+  color: rgba(200, 200, 200, 0.9);
+  font-weight: bold;
+}
+
+.stair-active {
+  background: rgba(156, 39, 176, 0.5);
+  border-color: rgba(156, 39, 176, 0.9);
+  box-shadow: 0 0 10px rgba(156, 39, 176, 0.5);
+}
+
+.stair-active .stair-label {
+  color: #ce93d8;
 }
 
 /* Koridorlar */
@@ -301,6 +396,49 @@
   z-index: 2;
 }
 
+/* Asansöre dönüş pozisyonu */
+.return-position .position-marker,
+.return-marker {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.8);
+}
+
+.return-position .position-pulse {
+  background: rgba(255, 100, 100, 0.3);
+}
+
+/* Asansörde başlangıç pozisyonu */
+.start-position .position-marker,
+.start-marker {
+  background: linear-gradient(135deg, #ffc107 0%, #ffdb58 100%);
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.8);
+}
+
+.start-position .position-pulse {
+  background: rgba(255, 193, 7, 0.3);
+}
+
+/* Merdiven pozisyonları */
+.stair-position .position-marker,
+.stair-marker {
+  background: linear-gradient(135deg, #9c27b0 0%, #ce93d8 100%);
+  box-shadow: 0 0 10px rgba(156, 39, 176, 0.8);
+}
+
+.stair-position .position-pulse {
+  background: rgba(156, 39, 176, 0.3);
+}
+
+.stair-return-position .position-marker,
+.stair-return-marker {
+  background: linear-gradient(135deg, #9c27b0 0%, #ce93d8 100%);
+  box-shadow: 0 0 10px rgba(156, 39, 176, 0.8);
+}
+
+.stair-return-position .position-pulse {
+  background: rgba(156, 39, 176, 0.3);
+}
+
 .position-order {
   font-size: 0.5rem;
   font-weight: bold;
@@ -373,6 +511,11 @@
 .legend-color.legend-cross-aisle {
   background: rgba(255, 200, 100, 0.15);
   border: 1px dashed rgba(255, 200, 100, 0.4);
+}
+
+.legend-color.legend-elevator {
+  background: rgba(255, 193, 7, 0.4);
+  border: 2px solid rgba(255, 193, 7, 0.9);
 }
 
 .legend-color.legend-shelf-left {
@@ -570,6 +713,11 @@
 .pick-visualizer.light-mode .legend-color.legend-cross-aisle {
   background: rgba(200, 150, 50, 0.2);
   border-color: rgba(200, 150, 50, 0.5);
+}
+
+.pick-visualizer.light-mode .legend-color.legend-elevator {
+  background: rgba(255, 193, 7, 0.5);
+  border-color: rgba(200, 150, 0, 0.9);
 }
 
 .pick-visualizer.light-mode .legend-color.legend-shelf-left {

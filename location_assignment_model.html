@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depo Toplama Lokasyon Atama Modeli</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-2: #1c2333;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-dim: #8b949e;
+            --accent: #58a6ff;
+            --accent-2: #3fb950;
+            --accent-3: #d2a8ff;
+            --accent-4: #f78166;
+            --accent-5: #ff7b72;
+            --yellow: #e3b341;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent-3);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h2 .badge {
+            background: var(--accent-3);
+            color: var(--bg);
+            font-size: 0.75rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--accent-2);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .card.highlight {
+            border-left: 3px solid var(--accent);
+        }
+
+        .card.warning {
+            border-left: 3px solid var(--accent-4);
+        }
+
+        .card.success {
+            border-left: 3px solid var(--accent-2);
+        }
+
+        .card.purple {
+            border-left: 3px solid var(--accent-3);
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .card.highlight .card-title { color: var(--accent); }
+        .card.warning .card-title { color: var(--accent-4); }
+        .card.success .card-title { color: var(--accent-2); }
+        .card.purple .card-title { color: var(--accent-3); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--surface-2);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover td {
+            background: var(--surface-2);
+        }
+
+        td code {
+            background: var(--surface-2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent-4);
+        }
+
+        .math-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .math-block.objective {
+            border-left: 3px solid var(--yellow);
+            background: linear-gradient(135deg, var(--surface) 0%, rgba(227, 179, 65, 0.05) 100%);
+        }
+
+        .math-block.constraint {
+            border-left: 3px solid var(--accent);
+        }
+
+        .math-block.variable {
+            border-left: 3px solid var(--accent-2);
+        }
+
+        .math-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .math-block.objective .math-label { color: var(--yellow); }
+        .math-block.constraint .math-label { color: var(--accent); }
+        .math-block.variable .math-label { color: var(--accent-2); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .flow-step.stair { border-color: #9c27b0; color: #ce93d8; }
+        .flow-step.elevator { border-color: var(--accent-4); color: var(--accent-4); }
+        .flow-step.pick { border-color: var(--accent-2); color: var(--accent-2); }
+        .flow-step.decision { border-color: var(--yellow); color: var(--yellow); border-style: dashed; }
+
+        .flow-arrow {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            margin: 0 0.3rem;
+        }
+
+        ul, ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.1rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-blue { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
+        .tag-green { background: rgba(63, 185, 80, 0.15); color: var(--accent-2); }
+        .tag-purple { background: rgba(210, 168, 255, 0.15); color: var(--accent-3); }
+        .tag-orange { background: rgba(247, 129, 102, 0.15); color: var(--accent-4); }
+        .tag-yellow { background: rgba(227, 179, 65, 0.15); color: var(--yellow); }
+
+        .separator {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 2rem 0;
+        }
+
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .toc-title {
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+        }
+
+        .toc a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            padding: 0.2rem 0;
+            transition: color 0.15s;
+        }
+
+        .toc a:hover {
+            color: var(--accent);
+        }
+
+        .toc ol {
+            padding-left: 1.2rem;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 1rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>📦 Depo Toplama: Lokasyon Atama Modeli</h1>
+        <p class="subtitle">
+            Toplanması gereken ürünlerin, stok bilgilerine göre en uygun lokasyonlardan karşılanmasını sağlayan
+            Karma Tamsayılı Doğrusal Programlama (MILP) modeli.
+            Rotalama bu model kapsamı dışındadır — model yalnızca <strong>hangi lokasyonlardan, ne kadar toplanacağını</strong> belirler.
+            Tüm katların ziyaret edileceği varsayımıyla, sipariş hacminin büyüklüğü nedeniyle
+            odak <strong>yürüme mesafesi ve THM sayısı minimizasyonu</strong> üzerinedir.
+            Gerçek yürüme mesafesi, koridor bazında yatay mesafe + koridor içi maksimum derinlik olarak modellenmiştir.
+            Raf seviyesi, sol/sağ taraf bilgisi ve THM (palet/kutu) konsolidasyonu da modele dahildir.
+        </p>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="toc">
+            <div class="toc-title">İçindekiler</div>
+            <ol>
+                <li><a href="#data">Veri Analizi ve Problem Boyutu</a></li>
+                <li><a href="#flow">Operasyonel Akış</a></li>
+                <li><a href="#sets">Kümeler ve İndisler</a></li>
+                <li><a href="#params">Parametreler</a></li>
+                <li><a href="#vars">Karar Değişkenleri</a></li>
+                <li><a href="#objective">Amaç Fonksiyonu</a></li>
+                <li><a href="#constraints">Kısıtlar</a></li>
+                <li><a href="#extensions">Model Uzantıları</a></li>
+                <li><a href="#complexity">Karmaşıklık ve Çözüm Yaklaşımı</a></li>
+                <li><a href="#commentary">Yorum ve Değerlendirme</a></li>
+            </ol>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 1: DATA ANALYSIS -->
+        <h2 id="data"><span class="badge">1</span> Veri Analizi ve Problem Boyutu</h2>
+
+        <div class="grid-2">
+            <div class="stat-card">
+                <div class="stat-value">2,759</div>
+                <div class="stat-label">Benzersiz Ürün (Toplanacak)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6,816</div>
+                <div class="stat-label">Toplam Toplanacak Adet</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">26,701</div>
+                <div class="stat-label">Stok Lokasyonu</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">6</div>
+                <div class="stat-label">Kat Sayısı (MZN1–MZN6)</div>
+            </div>
+        </div>
+
+        <h3>Ürünlerin Katlara Dağılımı</h3>
+        <div class="card highlight">
+            <div class="card-title">Ürün Başına Kat Dağılımı</div>
+            <table>
+                <thead>
+                    <tr><th>Durum</th><th>Ürün Sayısı</th><th>Oran</th><th>Açıklama</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag tag-green">1 kat</span></td>
+                        <td>1,366</td>
+                        <td>%45.6</td>
+                        <td>Seçim yok — zorunlu kat</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-blue">2 kat</span></td>
+                        <td>1,083</td>
+                        <td>%36.1</td>
+                        <td>İki kat arasında seçim</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-purple">3 kat</span></td>
+                        <td>496</td>
+                        <td>%16.5</td>
+                        <td>Üç kat arasında seçim</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-orange">4+ kat</span></td>
+                        <td>52</td>
+                        <td>%1.7</td>
+                        <td>Dört veya daha fazla kat</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;">
+                Ürün başına ortalama kat sayısı: <strong>1.75</strong>.
+                Çok katlı ürünler (%54.4) modelin optimizasyon potansiyelini oluşturur.
+            </p>
+        </div>
+
+        <h3>Kat Başına Stok Lokasyonu</h3>
+        <table>
+            <thead>
+                <tr><th>Kat</th><th>Lokasyon Sayısı</th><th>Oran</th><th>Ekipman</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>MZN1</code></td><td>762</td><td>%2.9</td><td><span class="tag tag-orange">Pickcar YOK</span></td></tr>
+                <tr><td><code>MZN2</code></td><td>1,809</td><td>%6.8</td><td><span class="tag tag-orange">Pickcar YOK</span></td></tr>
+                <tr><td><code>MZN3</code></td><td>1,508</td><td>%5.6</td><td><span class="tag tag-orange">Pickcar YOK</span></td></tr>
+                <tr><td><code>MZN4</code></td><td>6,846</td><td>%25.6</td><td><span class="tag tag-green">Pickcar VAR</span></td></tr>
+                <tr><td><code>MZN5</code></td><td>8,359</td><td>%31.3</td><td><span class="tag tag-green">Pickcar VAR</span></td></tr>
+                <tr><td><code>MZN6</code></td><td>7,418</td><td>%27.8</td><td><span class="tag tag-green">Pickcar VAR</span></td></tr>
+            </tbody>
+        </table>
+
+        <div class="card warning">
+            <div class="card-title">Veri Uyumluluğu</div>
+            <p>Tüm 2,759 ürün stok verisinde mevcuttur. Karşılanamayan ürün yoktur (<strong>%100 eşleşme</strong>).</p>
+        </div>
+
+        <h3>Ek Veri Boyutları</h3>
+        <div class="grid-2">
+            <div class="stat-card">
+                <div class="stat-value">21,852</div>
+                <div class="stat-label">Benzersiz THM (Palet/Kutu)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Raf Seviyesi (1–7)</div>
+            </div>
+        </div>
+        <div class="card highlight">
+            <div class="card-title">THM, Raf ve Taraf Dağılımı</div>
+            <table>
+                <thead>
+                    <tr><th>Boyut</th><th>Dağılım</th><th>Model Etkisi</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag tag-orange">THM</span></td>
+                        <td>21,852 benzersiz THM. Lokasyon başına 1–14 THM. %50'si tek THM'li lokasyonda</td>
+                        <td>THM konsolidasyonu — aynı THM'deki ürünleri birlikte topla</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-purple">Raf</span></td>
+                        <td>Seviye 1: 5,992 · 2: 6,136 · 3: 4,326 · 4: 4,247 · 5: 2,377 · 6: 1,852 · 7: 1,772</td>
+                        <td>Alçak raf tercihi — ergonomik eri\u015fimi optimize et</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-blue">Taraf (L/R)</span></td>
+                        <td>L: 13,121 (%49.1) · R: 13,581 (%50.9)</td>
+                        <td>L tarafı tercihi — doğal yürüyüş tarafı</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 2: FLOW -->
+        <h2 id="flow"><span class="badge">2</span> Operasyonel Akış</h2>
+
+        <div class="card warning">
+            <div class="card-title">Önemli: Kat Tipleri</div>
+            <p>
+                Depoda iki farklı kat tipi vardır. Bu ayrım kat geçiş sürecini doğrudan etkiler:
+            </p>
+            <table>
+                <thead>
+                    <tr><th>Katlar</th><th>Pickcar</th><th>Asansör</th><th>Merdiven</th><th>Toplama Yöntemi</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MZN1, MZN2, MZN3</strong></td>
+                        <td><span class="tag tag-orange">YOK</span></td>
+                        <td><span class="tag tag-orange">Kullanılmaz</span></td>
+                        <td><span class="tag tag-green">Evet</span></td>
+                        <td>Elle (yürüyerek) toplama</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MZN4, MZN5, MZN6</strong></td>
+                        <td><span class="tag tag-green">VAR</span></td>
+                        <td><span class="tag tag-green">Evet</span></td>
+                        <td><span class="tag tag-green">Evet</span></td>
+                        <td>Pickcar ile toplama</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Kat Geçişi: MZN4–6 (Pickcar’lı Katlar)</h3>
+        <p>Pickcar’lı katlar arası geçiş süreci:</p>
+
+        <div class="flow-diagram">
+            <div class="flow-step pick">Toplama<br><small>(mevcut kat)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step elevator">Asansör<br><small>(pickcar bırak)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step stair">Merdiven<br><small>(yürüyerek)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step decision">Hedef Kat<br><small>(yeni kat)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step stair">Merdiven<br><small>(iniş/çıkış)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step elevator">Asansör<br><small>(pickcar al)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step pick">Toplama<br><small>(yeni kat)</small></div>
+        </div>
+
+        <h3>Kat Geçişi: MZN1–3 (Pickcar’sız Katlar)</h3>
+        <p>Pickcar’sız katlarda asansör kullanılmaz, sadece merdivenle geçiş yapılır:</p>
+
+        <div class="flow-diagram">
+            <div class="flow-step pick">Toplama<br><small>(mevcut kat)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step stair">Merdiven<br><small>(yürüyerek)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step decision">Hedef Kat<br><small>(yeni kat)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step stair">Merdiven<br><small>(iniş/çıkış)</small></div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-step pick">Toplama<br><small>(yeni kat)</small></div>
+        </div>
+
+        <div class="card highlight">
+            <div class="card-title">Kat Geçiş Maliyeti Farkı</div>
+            <p>
+                MZN1–3 arası geçiş <strong>daha ucuzdur</strong>: sadece merdiven yürüyüşü.
+                MZN4–6 arası geçiş ise <strong>daha pahalıdır</strong>: asansöre pickcar bırakma + merdiven + asansörden pickcar alma.
+                MZN1–3 ↔ MZN4–6 geçişi ise karma bir maliyet taşır.
+            </p>
+        </div>
+
+        <div class="card purple">
+            <div class="card-title">Tüm Katlar Ziyaret Edilecek</div>
+            <p>
+                Sipariş hacmi (6,816 adet, 2,759 ürün) o kadar büyüktür ki tüm 6 kat kaçınılmaz olarak
+                ziyaret edilecektir. Hiçbir tek kat bile atlanamaz — en az vazgeçilmez olan MZN1
+                bile çıkarıldığında 30 ürün karşılanamaz hale gelir.
+            </p>
+            <p>
+                Bu nedenle model <strong>kat sayısı minimizasyonu yerine</strong>, kat içi
+                <strong>yürüme mesafesi, THM, raf yüksekliği, taraf ve lokasyon sayısı minimizasyonuna</strong> odaklanır.
+            </p>
+            <p>
+                Ancak pickcar ayrımı önemlidir: MZN1–3 (elle toplama) ve MZN4–6 (pickcar ile toplama)
+                farklı operasyonel kısıtlara sahiptir. Bu fark, rotalama aşamasında
+                dikkate alınacaktır.
+            </p>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 3: SETS -->
+        <h2 id="sets"><span class="badge">3</span> Kümeler ve İndisler</h2>
+
+        <div class="math-block variable">
+            <div class="math-label">Kümeler</div>
+            <table>
+                <thead>
+                    <tr><th>Sembol</th><th>Tanım</th><th>Boyut</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>\( P \)</td>
+                        <td>Toplanması gereken ürün kodları kümesi</td>
+                        <td>\( |P| = 2{,}759 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( L \)</td>
+                        <td>Tüm stok lokasyonları kümesi</td>
+                        <td>\( |L| = 26{,}701 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( L_p \subseteq L \)</td>
+                        <td>Ürün \( p \)'nin bulunduğu lokasyonlar</td>
+                        <td>Değişken</td>
+                    </tr>
+                    <tr>
+                        <td>\( F = \{1,...,6\} \)</td>
+                        <td>Katlar (MZN1–MZN6)</td>
+                        <td>\( |F| = 6 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( F^{\text{pc}} = \{4,5,6\} \)</td>
+                        <td>Pickcar’lı katlar (MZN4–MZN6)</td>
+                        <td>\( |F^{\text{pc}}| = 3 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( F^{\text{el}} = \{1,2,3\} \)</td>
+                        <td>Elle toplama katları (MZN1–MZN3, pickcar yok)</td>
+                        <td>\( |F^{\text{el}}| = 3 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( L^f \subseteq L \)</td>
+                        <td>Kat \( f \)'deki lokasyonlar kümesi</td>
+                        <td>Değişken</td>
+                    </tr>
+                    <tr>
+                        <td>\( E = \{E_1, E_2\} \)</td>
+                        <td>Asansör pozisyonları (koridor 8 ve 18, Cross Aisle 1 üzerinde)</td>
+                        <td>\( |E| = 2 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( S = \{S_1, \ldots, S_8\} \)</td>
+                        <td>Merdiven pozisyonları (farklı koridor ve cross aisle'larda)</td>
+                        <td>\( |S| = 8 \)</td>
+                    </tr>
+                    <tr>
+                        <td>\( M \)</td>
+                        <td>Tüm benzersiz THM'lerin (palet/kutu) kümesi</td>
+                        <td>\( |M| = 21{,}852 \)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 4: PARAMETERS -->
+        <h2 id="params"><span class="badge">4</span> Parametreler</h2>
+
+        <div class="math-block">
+            <table>
+                <thead>
+                    <tr><th>Sembol</th><th>Tanım</th><th>Kaynak</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>\( q_p \)</td>
+                        <td>Ürün \( p \)'den toplanması gereken toplam miktar</td>
+                        <td><code>Picking_Data.csv → PICKED_AMOUNT</code> (aynı ürün satırları toplanır)</td>
+                    </tr>
+                    <tr>
+                        <td>\( s_l \)</td>
+                        <td>Lokasyon \( l \)'deki kullanılabilir stok</td>
+                        <td><code>Stock_Data.csv → STOCK − RESERVED</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( f_l \in F \)</td>
+                        <td>Lokasyon \( l \)'nin bulunduğu kat</td>
+                        <td><code>Stock_Data.csv → AREA</code> (MZN1→1, ..., MZN6→6)</td>
+                    </tr>
+                    <tr>
+                        <td>\( a_l \)</td>
+                        <td>Lokasyon \( l \)'nin bulunduğu koridor (aisle) numarası</td>
+                        <td><code>Stock_Data.csv → AISLE</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( c_l \)</td>
+                        <td>Lokasyon \( l \)'nin sütun (column) numarası</td>
+                        <td><code>Stock_Data.csv → COLUMN</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( d_l \)</td>
+                        <td>Lokasyon \( l \)'nin giriş noktasına Manhattan mesafesi (metre)</td>
+                        <td>Ön-hesaplanmış (aşağıdaki formüle göre)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \text{depth}_l \)</td>
+                        <td>Lokasyon \( l \)'nin kendi koridor yarısı içindeki derinliği (metre)</td>
+                        <td>Ön-hesaplanmış: \( (c_l - 0.5) \times W_c \) (üst yarı, col 1–10) veya \( (c_l - 10.5) \times W_c \) (alt yarı, col 11–20)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \gamma_{fa} \)</td>
+                        <td>Kat \( f \), koridor \( a \)'yı ziyaret etmenin yatay mesafe maliyeti (metre)</td>
+                        <td>Ön-hesaplanmış: \( \gamma_{fa} = |a - a_e^f| \times (W_a + 2W_s) \) burada \( a_e^f \) = en yakın giriş koridor numarası</td>
+                    </tr>
+                    <tr>
+                        <td>\( h_l \in \{1, \ldots, 7\} \)</td>
+                        <td>Lokasyon \( l \)'nin raf seviyesi (yükseklik)</td>
+                        <td><code>Stock_Data.csv → SHELF</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( r_l \in \{0, 1\} \)</td>
+                        <td>Lokasyon \( l \)'nin taraf göstergesi (R=1, L=0)</td>
+                        <td><code>Stock_Data.csv → LEFT_OR_RIGHT</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( m_l \in M \)</td>
+                        <td>Lokasyon \( l \)'nin ait olduğu THM (palet/kutu) kimliği</td>
+                        <td><code>Stock_Data.csv → PICKED_THM</code></td>
+                    </tr>
+                    <tr>
+                        <td>\( \gamma_{fa} \)</td>
+                        <td>Koridor yatay mesafe katsayısı (koridor başına, ön-hesaplanmış)</td>
+                        <td>Ön-hesaplanmış \( \gamma_{fa} \) sabitleri (yukarıda açıklanmıştır)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \theta \)</td>
+                        <td>THM aktivasyon ceza katsayısı</td>
+                        <td>Ayarlanabilir ağırlık (örn. 3)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \delta \)</td>
+                        <td>Koridor derinlik ağırlık katsayısı</td>
+                        <td>Ayarlanabilir ağırlık (örn. 1)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \epsilon \)</td>
+                        <td>Raf yüksekliği ceza katsayısı</td>
+                        <td>Ayarlanabilir ağırlık (örn. 0.5)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \eta \)</td>
+                        <td>Taraf (R/L) ceza katsayısı</td>
+                        <td>Ayarlanabilir ağırlık (örn. 0.3)</td>
+                    </tr>
+                    <tr>
+                        <td>\( \beta \)</td>
+                        <td>Lokasyon ziyaret (durak) ceza katsayısı</td>
+                        <td>Ayarlanabilir ağırlık (örn. 0.1)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Mesafe Hesaplama: \( d_l \)</h3>
+        <div class="card highlight">
+            <div class="card-title">Giriş Noktası Seçimi</div>
+            <p>Her lokasyon \( l \) için mesafe, o katın giriş noktasına göre hesaplanır:</p>
+            <table>
+                <thead>
+                    <tr><th>Kat Tipi</th><th>Giriş Noktası</th><th>Formül</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag tag-green">MZN4–6</span> (Pickcar)</td>
+                        <td>En yakın asansör</td>
+                        <td>\( d_l = \min_{e \in E} \text{manhattan}(e, l) \)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-orange">MZN1–3</span> (Elle)</td>
+                        <td>En yakın merdiven</td>
+                        <td>\( d_l = \min_{s \in S} \text{manhattan}(s, l) \)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card purple">
+            <div class="card-title">Manhattan Mesafe Formülü</div>
+            <p>
+                Giriş noktası \((a_e, \text{CA}_k)\) ile lokasyon \((a_l, c_l)\) arasındaki mesafe,
+                cross aisle üzerinden geçerek hesaplanır:
+            </p>
+            <div class="math-block">
+                <p>
+                    \[
+                    \text{manhattan}(\text{entry}, l) = \underbrace{|a_l - a_e| \times (W_a + 2 W_s)}_{\text{Yatay: cross aisle boyunca}} \;+\; \underbrace{v(c_l, \text{CA}_k)}_{\text{Dikey: koridor içi derinlik}}
+                    \]
+                </p>
+            </div>
+            <p>Depo sabitleri:</p>
+            <table>
+                <thead>
+                    <tr><th>Sabit</th><th>Değer</th><th>Açıklama</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>\( W_a \)</td><td>1.36 m</td><td>Koridor genişliği (AISLE_WIDTH)</td></tr>
+                    <tr><td>\( W_s \)</td><td>1.16 m</td><td>Raf derinliği (SHELF_DEPTH)</td></tr>
+                    <tr><td>\( W_c \)</td><td>2.90 m</td><td>Sütun uzunluğu (COLUMN_LENGTH)</td></tr>
+                    <tr><td>\( W_{ca} \)</td><td>2.70 m</td><td>Cross aisle genişliği</td></tr>
+                    <tr><td>\( W_a + 2W_s \)</td><td>3.68 m</td><td>Koridorlar arası adım mesafesi</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="color: var(--accent-3); margin-top: 1rem;">Dikey Derinlik \( v(c_l, \text{CA}_k) \)</h3>
+            <p>Giriş cross aisle'ına göre lokasyonun koridor içi derinliği:</p>
+            <table>
+                <thead>
+                    <tr><th>Giriş CA</th><th>Sütun Aralığı</th><th>Derinlik Formülü</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CA1</td><td>\( c_l \in [1, 10] \)</td>
+                        <td>\( W_{ca} + (c_l - 0.5) \times W_c \)</td>
+                    </tr>
+                    <tr>
+                        <td>CA1</td><td>\( c_l \in [11, 20] \)</td>
+                        <td>\( W_{ca} + 10 W_c + W_{ca} + (c_l - 10.5) \times W_c \)</td>
+                    </tr>
+                    <tr>
+                        <td>CA2</td><td>\( c_l \in [1, 10] \)</td>
+                        <td>\( (10.5 - c_l) \times W_c \)</td>
+                    </tr>
+                    <tr>
+                        <td>CA2</td><td>\( c_l \in [11, 20] \)</td>
+                        <td>\( (c_l - 10.5) \times W_c \)</td>
+                    </tr>
+                    <tr>
+                        <td>CA3</td><td>\( c_l \in [11, 20] \)</td>
+                        <td>\( (20.5 - c_l) \times W_c \)</td>
+                    </tr>
+                    <tr>
+                        <td>CA3</td><td>\( c_l \in [1, 10] \)</td>
+                        <td>\( 10 W_c + W_{ca} + (10.5 - c_l) \times W_c \)</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;">
+                \( d_l \) her lokasyon için <strong>ön-hesaplanmış bir sabit</strong>tir — modelde değişken değildir.
+                Bu sayede amaç fonksiyonu doğrusal kalır. Mevcut kod tabanındaki
+                <code>manhattanDistanceWithCrossAisles()</code> ve <code>getElevatorToPickDistance()</code>
+                fonksiyonları bu hesaplamayı zaten gerçekleştirir.
+            </p>
+
+            <h3 style="color: var(--accent-3); margin-top: 1rem;">Koridor Yarım Derinliği \( \text{depth}_l \)</h3>
+            <p>
+                Amaç fonksiyonunda \( d_l \) yerine <strong>koridor yarım derinliği</strong> kullanılır.
+                Her lokasyonun kendi koridor yarısı içindeki derinliği:
+            </p>
+            <div class="math-block">
+                <p>
+                    \[
+                    \text{depth}_l = \begin{cases}
+                    (c_l - 0.5) \times W_c & c_l \leq 10 \quad \text{(üst yarı, CA1'den)} \\[4pt]
+                    (c_l - 10.5) \times W_c & c_l > 10 \quad \text{(alt yarı, CA2'den)}
+                    \end{cases}
+                    \]
+                </p>
+            </div>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Bu formül, lokasyonun en yakın cross aisle'dan ne kadar "içeride" olduğunu ölçer.
+                Amaç fonksiyonundaki \( D_{fa}^{U} \) ve \( D_{fa}^{L} \) değişkenleri, her koridor yarısındaki
+                en derin lokasyonun \( \text{depth}_l \) değerini yakalayarak <strong>sadece max derinliği</strong> maliyete yansıtır.
+            </p>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 5: VARIABLES -->
+        <h2 id="vars"><span class="badge">5</span> Karar Değişkenleri</h2>
+
+        <div class="math-block variable">
+            <div class="math-label">Karar Değişkenleri</div>
+
+            <h3 style="color: var(--accent-2);">Birincil Değişkenler</h3>
+            <table>
+                <thead>
+                    <tr><th>Değişken</th><th>Tip</th><th>Tanım</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>\( x_l \in \mathbb{Z}^{\geq 0} \)</td>
+                        <td>Tamsayı</td>
+                        <td>Lokasyon \( l \)'den toplanacak miktar</td>
+                    </tr>
+                    <tr>
+                        <td>\( y_l \in \{0, 1\} \)</td>
+                        <td>İkili (Binary)</td>
+                        <td>Lokasyon \( l \) ziyaret edilecek mi?</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color: var(--accent-2); margin-top: 1rem;">Türetilmiş Değişkenler</h3>
+            <table>
+                <thead>
+                    <tr><th>Değişken</th><th>Tip</th><th>Tanım</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>\( w_{fa} \in \{0, 1\} \)</td>
+                        <td>İkili (Binary)</td>
+                        <td>Kat \( f \)'de, koridor \( a \) ziyaret edilecek mi?</td>
+                    </tr>
+                    <tr>
+                        <td>\( t_m \in \{0, 1\} \)</td>
+                        <td>İkili (Binary)</td>
+                        <td>THM \( m \) erişilecek mi?</td>
+                    </tr>
+                    <tr>
+                        <td>\( D_{fa}^{U} \geq 0 \)</td>
+                        <td>Sürekli</td>
+                        <td>Kat \( f \), koridor \( a \) üst yarısındaki (col 1–10) en derin lokasyonun derinliği (m)</td>
+                    </tr>
+                    <tr>
+                        <td>\( D_{fa}^{L} \geq 0 \)</td>
+                        <td>Sürekli</td>
+                        <td>Kat \( f \), koridor \( a \) alt yarısındaki (col 11–20) en derin lokasyonun derinliği (m)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card highlight">
+            <div class="card-title">Değişken Sayısı</div>
+            <ul>
+                <li>\( x_l \): 26,701 tamsayı değişken (her lokasyon için)</li>
+                <li>\( y_l \): 26,701 ikili değişken (her lokasyon için)</li>
+                <li>\( w_{fa} \): 6 × 27 = 162 ikili değişken (her kat-koridor çifti için)</li>
+                <li>\( t_m \): 21,852 ikili değişken (her THM için)</li>
+                <li>\( D_{fa}^{U}, D_{fa}^{L} \): 6 × 27 × 2 = 324 sürekli değişken (her kat-koridor-yarım çifti için)</li>
+                <li><strong>Toplam:</strong> ~75,740 değişken</li>
+            </ul>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 6: OBJECTIVE -->
+        <h2 id="objective"><span class="badge">6</span> Amaç Fonksiyonu</h2>
+
+        <div class="math-block objective">
+            <div class="math-label">Amaç: Minimize Et</div>
+            <p>
+                \[
+                \min \quad \underbrace{\sum_{f \in F} \sum_{a=1}^{27} \gamma_{fa} \cdot w_{fa}}_{\text{Koridor yatay mesafesi}} \;+\; \underbrace{\delta \sum_{f \in F} \sum_{a=1}^{27} \big(D_{fa}^{U} + D_{fa}^{L}\big)}_{\text{Koridor içi derinlik}} \;+\; \underbrace{\theta \sum_{m \in M} t_m}_{\text{THM aktivasyonu}} \;+\; \underbrace{\sum_{l \in L} \big(\epsilon \cdot h_l + \eta \cdot r_l + \beta\big) \; y_l}_{\text{Raf + taraf + durak}}
+                \]
+            </p>
+        </div>
+
+        <div class="card success">
+            <div class="card-title">Neden Koridor Derinlik Modeli?</div>
+            <p>
+                Önceki modelde her lokasyonun giriş noktasına mesafesi (\( d_l \cdot y_l \)) bağımsız olarak
+                toplanıyordu. Ancak gerçek yürüme böyle çalışmaz:
+            </p>
+            <table>
+                <thead>
+                    <tr><th>Senaryo</th><th>Eski Model</th><th>Gerçek Yürüme</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sadece col 9</td>
+                        <td>\( d_9 \)</td>
+                        <td>Koridora gir → col 9 → geri dön</td>
+                    </tr>
+                    <tr>
+                        <td>Col 3 + col 9</td>
+                        <td>\( d_3 + d_9 \) <span class="tag tag-orange">Çift sayım!</span></td>
+                        <td>Koridora gir → col 9 (col 3'ü geçerken topla) → geri dön</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Col 3'ün ek maliyeti</strong></td>
+                        <td><strong>\( d_3 \) (tam maliyet)</strong></td>
+                        <td><strong>≈ 0 (zaten geçiyorsun)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 0.5rem;">
+                Yeni model \( D_{fa} = \max \) derinlik yaklaşımıyla, aynı koridordaki sığ lokasyonları
+                <strong>bedavaya yakın</strong> görür — çünkü en derin noktaya zaten yürürsünüz.
+            </p>
+        </div>
+
+        <div class="card warning">
+            <div class="card-title">Ağırlık Hiyerarşisi</div>
+            <p>Tüm katlar ziyaret edileceğinden, kat minimizasyonu modelden çıkarılmıştır.
+               Dört kademeli maliyet yapısı kullanılır:</p>
+            <table>
+                <thead>
+                    <tr><th>Öncelik</th><th>Terim</th><th>Açıklama</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag tag-yellow">1</span></td>
+                        <td>\( \sum \gamma_{fa} \cdot w_{fa} \)</td>
+                        <td>Koridor yatay mesafesi — her koridorun giriş noktasına gerçek mesafesi (metre)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-blue">2</span></td>
+                        <td>\( \delta \sum (D_{fa}^U + D_{fa}^L) \)</td>
+                        <td>Koridor içi derinlik — her koridorda en derin lokasyona kadar yürüyüş mesafesi</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-orange">3</span></td>
+                        <td>\( \theta \sum t_m \)</td>
+                        <td>THM aktivasyonu — palet/kutu erişim sayısı</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag tag-green">4</span></td>
+                        <td>\( \sum (\epsilon \cdot h_l + \eta \cdot r_l + \beta) \cdot y_l \)</td>
+                        <td>Lokasyon maliyeti — raf seviyesi + taraf + durak cezası</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color: var(--accent-4); margin-top: 1rem;">Parametre Değerleri</h3>
+            <table>
+                <thead>
+                    <tr><th>Parametre</th><th>Örnek Değer</th><th>Açıklama</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>\( \gamma_{fa} \)</td>
+                        <td>Ön-hesaplanmış (metre)</td>
+                        <td>Koridorun giriş noktasına yatay mesafesi. Örn: \( |a - a_e| \times 3.68 \) m. En yakın koridorlar için ~0, en uzak koridor için ~95 m</td>
+                    </tr>
+                    <tr>
+                        <td>\( \delta \)</td>
+                        <td>1</td>
+                        <td>Derinlik ağırlığı. \( D_{fa} \) zaten metre cinsinden, dolayısıyla doğal birimde</td>
+                    </tr>
+                    <tr>
+                        <td>\( \theta \)</td>
+                        <td>3</td>
+                        <td>THM erişim maliyeti. Bir THM'e erişim ~3 metrelik yürüme eşdeğeri</td>
+                    </tr>
+                    <tr>
+                        <td>\( \epsilon \)</td>
+                        <td>0.5</td>
+                        <td>Raf yükseklik cezası. Raf 7 için: \( 0.5 \times 7 = 3.5 \) m-eşdeğeri</td>
+                    </tr>
+                    <tr>
+                        <td>\( \eta \)</td>
+                        <td>0.3</td>
+                        <td>R taraf cezası (L=0, R=1). R tarafına erişim ~0.3 m ek maliyet</td>
+                    </tr>
+                    <tr>
+                        <td>\( \beta \)</td>
+                        <td>0.1</td>
+                        <td>Durak cezası. Eşit koşullarda az duraklı çözümü tercih</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem;">
+                <strong>\( \gamma_{fa} \) (yatay):</strong> Sabit değil, gerçek mesafe — yakın koridorlar ucuz, uzak koridorlar pahalı.
+                MZN4–6 için asansör koridoru (8 veya 18), MZN1–3 için en yakın merdiven koridoru referanstır.<br>
+                <strong>\( D_{fa}^{U}, D_{fa}^{L} \) (derinlik):</strong> Koridor içinde en derin lokasyona kadar olan
+                mesafe. Aynı koridordaki daha sığ lokasyonlar ek maliyet eklemez — zaten o derinliğe yürüyürsünüz.<br>
+                <strong>\( \theta \) (THM):</strong> Her ek THM, palet/kutu erişim maliyeti taşır.
+                Aynı THM'deki birden fazla ürün tek seferde toplanır.<br>
+                <strong>\( \epsilon, \eta, \beta \) (lokasyon):</strong> Lokasyon başına düşen ergonomik ve
+                operasyonel cezalar. Mesafeye kıyasla düşük ağırlıklı tie-breaker'lardır.
+            </p>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 7: CONSTRAINTS -->
+        <h2 id="constraints"><span class="badge">7</span> Kısıtlar</h2>
+
+        <h3>Kısıt 1: Talep Karşılama</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Her ürünün talebi tam olarak karşılanmalı</div>
+            <p>
+                \[
+                \sum_{l \in L_p} x_l = q_p \qquad \forall \, p \in P
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Her ürün \( p \) için, o ürünün bulunduğu tüm lokasyonlardan toplanan miktar,
+                talep edilen miktara eşit olmalıdır. (2,759 kısıt)
+            </p>
+        </div>
+
+        <h3>Kısıt 2: Stok Sınırı</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Bir lokasyondan stoktan fazla toplanamaz</div>
+            <p>
+                \[
+                x_l \leq s_l \cdot y_l \qquad \forall \, l \in L
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Lokasyon \( l \)'den toplanacak miktar, mevcut stoğu aşamaz.
+                Aynı zamanda, \( x_l > 0 \Rightarrow y_l = 1 \) bağını kurar. (26,701 kısıt)
+            </p>
+        </div>
+
+        <h3>Kısıt 3: Koridor Aktivasyonu</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Bir lokasyon ziyaret ediliyorsa, o kat-koridor çifti de aktif olmalıdır</div>
+            <p>
+                \[
+                y_l \leq w_{f_l, a_l} \qquad \forall \, l \in L
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Ziyaret edilen lokasyonun bulunduğu kat-koridor kombinasyonu aktif olmalıdır. (26,701 kısıt)
+            </p>
+        </div>
+
+        <h3>Kısıt 4: THM Aktivasyonu</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Bir lokasyon ziyaret ediliyorsa, o lokasyonun THM'si de aktif olmalıdır</div>
+            <p>
+                \[
+                y_l \leq t_{m_l} \qquad \forall \, l \in L
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Ziyaret edilen lokasyonun ait olduğu THM (palet/kutu) aktif olmalıdır.
+                Aynı THM'deki birden fazla ürün tek aktivasyonla toplanabilir — bu,
+                aynı THM'deki ürünlerin konsolidasyonunu teşvik eder. (26,701 kısıt)
+            </p>
+        </div>
+
+        <h3>Kısıt 5: Üst Yarı Derinlik Aktivasyonu</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Üst yarıdaki (col 1–10) en derin lokasyonun derinliği</div>
+            <p>
+                \[
+                D_{fa}^{U} \geq \text{depth}_l \cdot y_l \qquad \forall \, l \in L : c_l \leq 10,\; f_l = f,\; a_l = a
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                \( D_{fa}^{U} \) otomatik olarak o koridorun üst yarısındaki en derin ziyaret edilen
+                lokasyonun derinliğine eşitlenir. Daha sığ lokasyonlar zaten yolun üzerinde
+                olduğundan ek maliyet eklemez.
+            </p>
+        </div>
+
+        <h3>Kısıt 6: Alt Yarı Derinlik Aktivasyonu</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Alt yarıdaki (col 11–20) en derin lokasyonun derinliği</div>
+            <p>
+                \[
+                D_{fa}^{L} \geq \text{depth}_l \cdot y_l \qquad \forall \, l \in L : c_l > 10,\; f_l = f,\; a_l = a
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                \( D_{fa}^{L} \) otomatik olarak o koridorun alt yarısındaki en derin ziyaret edilen
+                lokasyonun derinliğine eşitlenir. Aynı mantık: sadece max derinlik maliyete yansır.
+            </p>
+        </div>
+
+        <h3>Kısıt 7: Tamsayılık ve İkilik</h3>
+        <div class="math-block constraint">
+            <div class="math-label">Değişken tipleri</div>
+            <p>
+                \[
+                x_l \in \mathbb{Z}^{\geq 0}, \quad y_l \in \{0,1\}, \quad w_{fa} \in \{0,1\}, \quad t_m \in \{0,1\}, \quad D_{fa}^{U}, D_{fa}^{L} \geq 0
+                \]
+            </p>
+        </div>
+
+        <div class="card success">
+            <div class="card-title">Kısıt Özeti</div>
+            <table>
+                <thead>
+                    <tr><th>Kısıt</th><th>Sayı</th><th>Tip</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Talep karşılama</td><td>2,759</td><td>Eşitlik</td></tr>
+                    <tr><td>Stok sınırı + bağlanma</td><td>26,701</td><td>Eşitsizlik</td></tr>
+                    <tr><td>Koridor aktivasyonu</td><td>26,701</td><td>Eşitsizlik</td></tr>
+                    <tr><td>THM aktivasyonu</td><td>26,701</td><td>Eşitsizlik</td></tr>
+                    <tr><td>Derinlik (üst yarı + alt yarı)</td><td>26,701</td><td>Eşitsizlik</td></tr>
+                    <tr><td><strong>Toplam</strong></td><td><strong>~109,563</strong></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 8: EXTENSIONS -->
+        <h2 id="extensions"><span class="badge">8</span> Model Uzantıları</h2>
+
+        <h3>Uzantı A: Aynı Lokasyondaki Birden Fazla Ürün</h3>
+        <div class="card highlight">
+            <div class="card-title">Lokasyon Konsolidasyonu</div>
+            <p>
+                Bir lokasyonda birden fazla toplanacak ürün bulunabilir.
+                Bu durumda o lokasyon tek bir ziyaretle hem iki ürünü karşılar.
+                Model bunu otomatik olarak yakalar: \( y_l = 1 \) olduğunda
+                o lokasyondaki tüm ürünler için \( x_l > 0 \) olabilir.
+            </p>
+        </div>
+
+        <h3>Uzantı B: Rotalama İçin Ön Hazırlık</h3>
+        <div class="card purple">
+            <div class="card-title">Model Çıktısı → Rotalama Girdisi</div>
+            <p>Model çözüldükten sonra, her kat \( f \) için:</p>
+            <ul>
+                <li>Ziyaret edilecek lokasyonlar: \( \{ l \in L^f : y_l = 1 \} \)</li>
+                <li>Her lokasyondan toplanacak ürünler ve miktarlar: \( \{ (l, p, x_l) : x_l > 0 \} \)</li>
+                <li>Her lokasyonun koordinatları: \( (\text{AISLE}_l, \text{COLUMN}_l, \text{SHELF}_l, \text{LR}_l) \)</li>
+            </ul>
+            <p>Bu çıktı doğrudan mevcut WarehouseSimulation rotalama motoruna beslenebilir.</p>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 9: COMPLEXITY -->
+        <h2 id="complexity"><span class="badge">9</span> Karmaşıklık ve Çözüm Yaklaşımı</h2>
+
+        <div class="card warning">
+            <div class="card-title">Problemin Karmaşıklığı</div>
+            <p>
+                Bu model bir <strong>Karma Tamsayılı Doğrusal Program (MILP)</strong>'dır.
+                MILP genel olarak NP-hard'dır, ancak bu problemin yapısı çözümü kolaylaştırır:
+            </p>
+            <ul>
+                <li>İkili değişkenler ağırlıklı olarak <strong>zaten relaksasyonda 0 veya 1</strong>'e yakınsadığından, LP-relaxation sıkıdır</li>
+                <li>Kısıtlar çoğunlukla basit <strong>üst sınır (bound) kısıtları</strong>dır</li>
+                <li>Problem doğal olarak <strong>ürün bazında ayrıştırılabilir</strong> yapıdadır</li>
+            </ul>
+        </div>
+
+        <h3>Çözüm Stratejisi</h3>
+        <table>
+            <thead>
+                <tr><th>Yaklaşım</th><th>Avantaj</th><th>Dezavantaj</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="tag tag-green">MILP Solver</span><br><small>(CBC, GLPK, Gurobi, CPLEX)</small></td>
+                    <td>Optimum veya kanıtlanmış yakın-optimum çözüm</td>
+                    <td>Büyük problemlerde uzun sürebilir</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-blue">Greedy Heuristik</span></td>
+                    <td>Çok hızlı, anlaşılması kolay</td>
+                    <td>Optimum garanti yok</td>
+                </tr>
+                <tr>
+                    <td><span class="tag tag-purple">İki Aşamalı</span><br><small>(Greedy → MILP iyileştirme)</small></td>
+                    <td>Hız + kalite dengesi</td>
+                    <td>Implementasyon karmaşıklığı</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Önerilen Greedy Algoritma (Hızlı Başlangıç)</h3>
+        <div class="card success">
+            <div class="card-title">Aşama 1: Kat Konsolidasyonu</div>
+            <ol>
+                <li>Tek katta bulunan ürünlerin zorunlu katlarını belirle → bu katlar kesinlikle ziyaret edilecek</li>
+                <li>Çok katlı ürünler için, zaten ziyaret edilen katları tercih et</li>
+                <li>Kalan ürünler için, en fazla ürünü kapsayan katı seç (set cover)</li>
+                <li>Tekrar et, tüm ürünler bir kata atanana kadar</li>
+            </ol>
+        </div>
+        <div class="card success">
+            <div class="card-title">Aşama 2: Kat İçi Lokasyon Seçimi</div>
+            <ol>
+                <li>Her katta, zaten aktif olan koridorlardaki lokasyonları önceliklendir (ek yatay maliyet yok)</li>
+                <li>Aynı koridor yarısındaki sığ lokasyonları tercih et (derinlik zaten ödendi)</li>
+                <li>Aynı THM'deki ürünleri konsolide et (tek THM aktivasyonu)</li>
+                <li>Stok yeterliliğini kontrol et, yetersizse en az ek maliyet ekleyen lokasyonu seç</li>
+            </ol>
+        </div>
+
+        <hr class="separator">
+
+        <h2>Kompakt Model Özeti</h2>
+
+        <div class="math-block objective" style="font-size: 1.05rem;">
+            <div class="math-label">Tam Model</div>
+            <p>
+                \[
+                \boxed{
+                \begin{aligned}
+                \min \quad & \sum_{f \in F} \sum_{a=1}^{27} \gamma_{fa} \cdot w_{fa} + \delta \sum_{f \in F} \sum_{a=1}^{27} (D_{fa}^{U} + D_{fa}^{L}) + \theta \sum_{m \in M} t_m + \sum_{l \in L} (\epsilon \cdot h_l + \eta \cdot r_l + \beta) \, y_l \\[8pt]
+                \text{s.t.} \quad & \sum_{l \in L_p} x_l = q_p & \forall \, p \in P \\[4pt]
+                & x_l \leq s_l \cdot y_l & \forall \, l \in L \\[4pt]
+                & y_l \leq w_{f_l, \, a_l} & \forall \, l \in L \\[4pt]
+                & y_l \leq t_{m_l} & \forall \, l \in L \\[4pt]
+                & D_{fa}^{U} \geq \text{depth}_l \cdot y_l & \forall \, l : c_l \leq 10 \\[4pt]
+                & D_{fa}^{L} \geq \text{depth}_l \cdot y_l & \forall \, l : c_l > 10 \\[4pt]
+                & x_l \in \mathbb{Z}^{\geq 0}, \quad D_{fa}^{U}, D_{fa}^{L} \geq 0 \\[2pt]
+                & y_l, \, w_{fa}, \, t_m \in \{0, 1\}
+                \end{aligned}
+                }
+                \]
+            </p>
+        </div>
+
+        <hr class="separator">
+
+        <!-- SECTION 10: COMMENTARY -->
+        <h2 id="commentary"><span class="badge">10</span> Yorum ve Değerlendirme</h2>
+
+        <div class="card warning">
+            <div class="card-title">Veri Gerçeği: Tüm Katlar Zorunlu mu?</div>
+            <p>
+                Veri analizi ilginç bir sonuç ortaya koyuyor: toplanacak 2,759 ürün arasında yalnızca
+                <strong>158 ürün</strong> tek bir katta bulunmaktadır (147'si MZN2, 11'i MZN3).
+                Kalan <strong>2,601 ürün (%94.3)</strong> birden fazla katta mevcuttur.
+            </p>
+            <p>
+                Teorik olarak sadece 2 kat (MZN2 + MZN3) zorunludur. Ancak 6,816 adetlik hacim
+                ve ürünlerin kat dağılımı (MZN4-5-6 kombinasyonu en yaygın: 358 ürün) göz önüne alındığında,
+                pratikte tüm katların kullanılması kaçınılmazdır.
+            </p>
+        </div>
+
+        <div class="card purple">
+            <div class="card-title">Yoğunluk ve Operatör Meselesi</div>
+            <p>
+                Model bir kata çok fazla yük yükleyebilir — örneğin 6,816 adetin 3,000'ini MZN5'e atarsa,
+                bu katta tek operatörle toplama sürdürülemez ve birden fazla operatör/tur gerekir.
+            </p>
+            <p>
+                <strong>MZN4–6 (pickcar'lı katlar)</strong> için yoğunluk = birden fazla pickcar.<br>
+                <strong>MZN1–3 (elle toplama)</strong> için yoğunluk = birden fazla operatör (asansör/pickcar yok, sadece merdiven).
+            </p>
+            <p>Bu durum iki farklı şekilde ele alınabilir:</p>
+
+            <h3 style="color: var(--accent-3); margin-top: 1rem;">Yaklaşım 1: Yük Dengeleme Kısıtı (Opsiyonel)</h3>
+            <p>Her kattaki toplam toplama adedini sınırlamak için:</p>
+            <p>
+                \[
+                \sum_{l \in L^f} x_l \leq U_f \qquad \forall \, f \in F
+                \]
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                \( U_f \): Kat \( f \) için maksimum toplama adedi. Bu sınır, pickcar'lı katlar (\( f \in F^{\text{pc}} \))
+                ve elle toplama katları (\( f \in F^{\text{el}} \)) için farklı değerler alabilir.
+            </p>
+
+            <h3 style="color: var(--accent-3); margin-top: 1rem;">Yaklaşım 2: Serbest Bırak, Sonra Böl</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem;">
+                Modeli yük sınırı olmadan çöz. Sonra her kattaki çıktıyı (lokasyonlar + miktarlar)
+                operatör kapasitesine göre turlara böl. Bu yaklaşımda model koridor minimizasyonuna
+                tam odaklanır, tur bölme heuristik olarak ayrıca yapılır.
+            </p>
+        </div>
+
+        <div class="card success">
+            <div class="card-title">Önerim</div>
+            <p>
+                <strong>İkinci yaklaşımı (serbest + sonra böl) tavsiye ederim.</strong>
+                Yük dengeleme kısıtı modeli zorlaştırır ve asıl hedefe (mesafe minimizasyonu) zarar verebilir.
+                Model "en az yürüme" odağında kalsın; iş bölüşümü ayrı bir adımda ele alınsın.
+            </p>
+            <p>
+                <strong>Pickcar olmayan katlarda (MZN1–3)</strong> operatörler zaten merdivenden direkt gider,
+                asansör adımı yoktur. Bu katlara ürün atandığında, kat geçiş maliyeti daha düşük olur
+                (sadece merdiven yürüyüşü). Rotalama aşamasında bu fark dikkate alınmalıdır.
+            </p>
+        </div>
+
+        <div class="card highlight">
+            <div class="card-title">Modelin Yürüme Mesafesini Yakalama Mantığı</div>
+            <p>
+                Model gerçek yürüme mesafesini iki bileşene ayırarak doğru yakalar:
+            </p>
+            <ul>
+                <li><strong>Yatay mesafe (\( \gamma_{fa} \cdot w_{fa} \)):</strong> Cross aisle boyunca koridora ulaşma maliyeti.
+                    Sabit değil, gerçek metre cinsinden ön-hesaplanmış. Yakın koridorlar ucuz, uzak koridorlar pahalı.</li>
+                <li><strong>Dikey derinlik (\( D_{fa}^{U} + D_{fa}^{L} \)):</strong> Koridor içinde en derin lokasyona kadar
+                    yürüyüş. Daha sığ lokasyonlar bedava — zaten o derinliğe yürürsünüz.</li>
+            </ul>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem;">
+                <strong>Toplam yürüme ≈ \( \sum \gamma_{fa} w_{fa} + \delta \sum (D_{fa}^U + D_{fa}^L) \)</strong>.
+                Rotalama (TSP) aşamasında lokasyonlar arası kesin tur mesafesi hesaplanacaktır,
+                ancak bu model seçilen lokasyonları coğrafi olarak kompakt tutarak
+                tur mesafesinin de düşük olmasını garanti eder.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0; color: var(--text-dim); font-size: 0.85rem;">
+            <p>Warehouse Simulation — Lokasyon Atama Modeli</p>
+            <p>Son Güncelleme: 8 Mart 2026</p>
+        </div>
+
+    </div>
+</body>
+</html>

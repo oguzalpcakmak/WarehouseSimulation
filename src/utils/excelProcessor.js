@@ -9,7 +9,13 @@ import {
   CROSS_AISLE_3_Y,
   POSITION_TOLERANCE,
   getPosition,
-  manhattanDistanceWithCrossAisles
+  manhattanDistanceWithCrossAisles,
+  ELEVATOR_1_AISLE,
+  ELEVATOR_2_AISLE,
+  getNearestElevator,
+  getElevatorToPickDistance,
+  getNearestStairToElevator,
+  getStairToElevatorDistance
 } from './layoutConstants.js';
 
 /**
@@ -118,18 +124,25 @@ function parseTime(timeStr) {
 
 /**
  * İki pick arasındaki mesafeyi hesaplar
- * @param {Object|null} prevPick - Önceki pick
+ * İlk pick için en yakın asansörden mesafe hesaplanır
+ * @param {Object|null} prevPick - Önceki pick (ilk pick için null)
  * @param {Object} currPick - Mevcut pick
  * @returns {number} Mesafe (metre)
  */
 function calculateStepDistance(prevPick, currPick) {
+  const currAisle = parseInt(currPick.AISLE);
+  const currColumn = parseInt(currPick.COLUMN);
+  
   if (!prevPick) {
-    return 0;
+    // İlk pick: En yakın asansörden mesafe hesapla
+    const nearestElevator = getNearestElevator(currAisle);
+    const elevatorAisle = nearestElevator === 1 ? ELEVATOR_1_AISLE : ELEVATOR_2_AISLE;
+    return getElevatorToPickDistance(elevatorAisle, currAisle, currColumn);
   }
 
   // Aynı AISLE ve COLUMN kontrolü
-  if (parseInt(prevPick.AISLE) === parseInt(currPick.AISLE) &&
-      parseInt(prevPick.COLUMN) === parseInt(currPick.COLUMN)) {
+  if (parseInt(prevPick.AISLE) === currAisle &&
+      parseInt(prevPick.COLUMN) === currColumn) {
     return 0;
   }
 
@@ -272,8 +285,65 @@ function determinePickOrder(picks) {
     }
   }
 
-  // STEP_DIST ve TOTAL_DIST hesapla
-  let totalDistance = 0;
+  if (orderedPicks.length === 0) {
+    return [];
+  }
+
+  // İlk pick'e göre en yakın asansörü belirle
+  const firstPick = orderedPicks[0];
+  const firstAisle = parseInt(firstPick.AISLE);
+  const nearestElevatorForStart = getNearestElevator(firstAisle);
+  const startElevatorAisle = nearestElevatorForStart === 1 ? ELEVATOR_1_AISLE : ELEVATOR_2_AISLE;
+  
+  // Başlangıç asansörüne en yakın merdiveni bul
+  const startStairId = getNearestStairToElevator(nearestElevatorForStart);
+  const stairToElevatorDist = getStairToElevatorDistance(startStairId, nearestElevatorForStart);
+
+  // === ADIM 0: Merdivende başlangıç ===
+  const stairStartRow = {
+    'PICKER_CODE': firstPick.PICKER_CODE,
+    'PICKCAR_THM': firstPick.PICKCAR_THM,
+    'DATE': firstPick.DATE,
+    'TIME': '-',
+    'AREA': firstPick.AREA,
+    'AISLE': '-',
+    'COLUMN': '0',
+    'SHELF': '-',
+    'LEFT_OR_RIGHT': '-',
+    'PICKED_THM': '-',
+    'ARTICLE_CODE': 'START_AT_STAIR',
+    'PICKED_AMOUNT': '0',
+    'PICK_ORDER': 0,
+    'STEP_DIST': 0,
+    'TOTAL_DIST': 0,
+    'IS_STAIR_START': true,
+    'STAIR_NUM': startStairId,
+    'ELEVATOR_NUM': nearestElevatorForStart
+  };
+
+  // === ADIM 1: Asansöre varış ===
+  const elevatorStartRow = {
+    'PICKER_CODE': firstPick.PICKER_CODE,
+    'PICKCAR_THM': firstPick.PICKCAR_THM,
+    'DATE': firstPick.DATE,
+    'TIME': '-',
+    'AREA': firstPick.AREA,
+    'AISLE': String(startElevatorAisle),
+    'COLUMN': '0',
+    'SHELF': '-',
+    'LEFT_OR_RIGHT': '-',
+    'PICKED_THM': '-',
+    'ARTICLE_CODE': 'START_AT_ELEVATOR',
+    'PICKED_AMOUNT': '0',
+    'PICK_ORDER': 1,
+    'STEP_DIST': Math.round(stairToElevatorDist * 100) / 100,
+    'TOTAL_DIST': Math.round(stairToElevatorDist * 100) / 100,
+    'IS_START': true,
+    'ELEVATOR_NUM': nearestElevatorForStart
+  };
+
+  // STEP_DIST ve TOTAL_DIST hesapla (merdiven + asansör mesafesi eklenerek)
+  let totalDistance = stairToElevatorDist;
   let prevPick = null;
   
   for (const pick of orderedPicks) {
@@ -284,7 +354,74 @@ function determinePickOrder(picks) {
     prevPick = pick;
   }
 
-  return orderedPicks;
+  // Son pick bilgileri
+  const lastPick = orderedPicks[orderedPicks.length - 1];
+  const lastAisle = parseInt(lastPick.AISLE);
+  const lastColumn = parseInt(lastPick.COLUMN);
+  
+  // En yakın asansörü bul (bitiş için)
+  const nearestElevatorForEnd = getNearestElevator(lastAisle);
+  const endElevatorAisle = nearestElevatorForEnd === 1 ? ELEVATOR_1_AISLE : ELEVATOR_2_AISLE;
+  
+  // Asansöre dönüş mesafesi
+  const returnDist = getElevatorToPickDistance(endElevatorAisle, lastAisle, lastColumn);
+  totalDistance += returnDist;
+  
+  // === ADIM N+2: Asansöre dönüş ===
+  const elevatorReturnRow = {
+    'PICKER_CODE': lastPick.PICKER_CODE,
+    'PICKCAR_THM': lastPick.PICKCAR_THM,
+    'DATE': lastPick.DATE,
+    'TIME': '-',
+    'AREA': lastPick.AREA,
+    'AISLE': String(endElevatorAisle),
+    'COLUMN': '0',
+    'SHELF': '-',
+    'LEFT_OR_RIGHT': '-',
+    'PICKED_THM': '-',
+    'ARTICLE_CODE': 'RETURN_TO_ELEVATOR',
+    'PICKED_AMOUNT': '0',
+    'PICK_ORDER': orderedPicks.length + 2,
+    'STEP_DIST': Math.round(returnDist * 100) / 100,
+    'TOTAL_DIST': Math.round(totalDistance * 100) / 100,
+    'IS_RETURN': true,
+    'ELEVATOR_NUM': nearestElevatorForEnd
+  };
+
+  // Bitiş asansörüne en yakın merdiveni bul
+  const endStairId = getNearestStairToElevator(nearestElevatorForEnd);
+  const elevatorToStairDist = getStairToElevatorDistance(endStairId, nearestElevatorForEnd);
+  totalDistance += elevatorToStairDist;
+
+  // === ADIM N+3: Merdivene dönüş ===
+  const stairReturnRow = {
+    'PICKER_CODE': lastPick.PICKER_CODE,
+    'PICKCAR_THM': lastPick.PICKCAR_THM,
+    'DATE': lastPick.DATE,
+    'TIME': '-',
+    'AREA': lastPick.AREA,
+    'AISLE': '-',
+    'COLUMN': '0',
+    'SHELF': '-',
+    'LEFT_OR_RIGHT': '-',
+    'PICKED_THM': '-',
+    'ARTICLE_CODE': 'RETURN_TO_STAIR',
+    'PICKED_AMOUNT': '0',
+    'PICK_ORDER': orderedPicks.length + 3,
+    'STEP_DIST': Math.round(elevatorToStairDist * 100) / 100,
+    'TOTAL_DIST': Math.round(totalDistance * 100) / 100,
+    'IS_STAIR_RETURN': true,
+    'STAIR_NUM': endStairId,
+    'ELEVATOR_NUM': nearestElevatorForEnd
+  };
+
+  // PICK_ORDER'ları 2'den başlayacak şekilde güncelle (0=merdiven, 1=asansör)
+  for (let i = 0; i < orderedPicks.length; i++) {
+    orderedPicks[i].PICK_ORDER = i + 2;
+  }
+
+  // Merdiven başlangıç + Asansör başlangıç + pickler + Asansör bitiş + Merdiven bitiş
+  return [stairStartRow, elevatorStartRow, ...orderedPicks, elevatorReturnRow, stairReturnRow];
 }
 
 /**
@@ -304,10 +441,20 @@ export function processExcel(rawData, onProgress = () => {}) {
     return transformRow(row);
   });
 
+  // 1.5. Adım: PICKED_AMOUNT'a göre satırları çoğalt
+  // Her birim ayrı bir pick step'i olarak işlenir
+  const expandedRows = [];
+  for (const row of transformedRows) {
+    const amount = parseInt(row.PICKED_AMOUNT) || 1;
+    for (let i = 0; i < amount; i++) {
+      expandedRows.push({ ...row, PICKED_AMOUNT: '1' });
+    }
+  }
+
   onProgress({ stage: 'filter', progress: 0 });
 
   // 2. Adım: MZN1-6 arealarını filtrele
-  const mznRows = transformedRows.filter(row => VALID_AREAS.has(row.AREA));
+  const mznRows = expandedRows.filter(row => VALID_AREAS.has(row.AREA));
 
   onProgress({ stage: 'group', progress: 0 });
 
